@@ -1,21 +1,17 @@
 import { useState } from 'react';
+import { authService } from 'myFirebase';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword  } from "firebase/auth";
 
 const Auth = () => {
 
-  // 이메일과 비밀번호를 저장할 state를 생성
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newAccount, setNewAccount] = useState(true);
 
-  // input 안의 들어갈 onChange 이벤트
-  // event.target의 name을 통해 어느 state에 값을 저장할지 결정
   const onChange = (event) => {
-    // const name = event.target.name;
-    // const value = event.target.value;
-    // const { name, value } = event.target;
-    // 구조분해할당으로 event.target.name과 event.target.value를 풀어서 변수에 각각 할당함
+
     const { target: { name, value } } = event;
 
-    console.log(name, value);
     if(name === 'email') {
       setEmail(value);
     } else if(name === 'password') {
@@ -23,18 +19,32 @@ const Auth = () => {
     }
   }
 
-  // form의 onSubmit 이벤트로 주어지는 함수
-  // form으로 인한 새로고침을 방지하기 위한 함수
-  const onSubmit = (event) => {
+  // createUserWithEmailAndPassword와 signInWithEmailAndPassword은 Promise를 반환하기 때문에 asyn&await을 사용
+  const onSubmit = async (event) => {
     event.preventDefault();
+
+    // async&await은 try... catch와 보통 같이 사용된다
+    try {
+      let data;
+      if(newAccount) {
+        // 새로운 계정 생성 + 자동 로그인
+        data = await createUserWithEmailAndPassword(authService, email, password);
+      } else {
+        // 로그인
+        data = await signInWithEmailAndPassword(authService, email, password);
+      }
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
       <div>
         <form onSubmit={onSubmit}>
-          <input type='text' name='email' placeholder='Email' required value={email} onChange={onChange}/>
+          <input type='email' name='email' placeholder='Email' required value={email} onChange={onChange}/>
           <input type='password' name='password' placeholder='Password' required value={password} onChange={onChange}/>
-          <input type='submit' value="Log In" />
+          <input type='submit' value={ newAccount ? "Create Account" : "Log In" } />
         </form>
         <div>
           <button>Continue with Google</button>

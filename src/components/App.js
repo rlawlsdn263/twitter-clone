@@ -4,22 +4,21 @@ import { authService } from 'myFirebase';
 import AppRouter from 'components/Router';
 
 function App() {
-  // Firebase init을 위한 state
   const [init, setInit] = useState(false);
-
-  // currentUser만으로는 로그인 상태를 파악하는 게 어렵다.
-  // Firebase를 통해 사용자 로그인을 파악하는 건 시간이 걸리는 일이다.
-  // 그래서 어플리케이션이 먼저 로드된 다음 사용자 로그인을 파악한다.
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // 사용자를 기록하기 위한 state
+  const [userObj, setUserObj] = useState(null);
+
   useEffect(() => {
-    // onAuthStateChanged를 사용하면 사용자의 로그인 상태를 추적할 수 있다
+    // 사용자가 로그인하면 onAuthStateChanged가 실행된다
     onAuthStateChanged(authService, (user) => {
       if(user) {
-        // 로그인된 상태
         setIsLoggedIn(true);
+        
+        // 사용자가 로그인이 됐다면 userObj state에 user 정보를 넣음
+        setUserObj(user);
       } else {
-        // 로그아웃된 상태
         setIsLoggedIn(false);
       }
       setInit(true);
@@ -29,7 +28,10 @@ function App() {
 
   return (
     <>
-      { init ? <AppRouter isLoggedIn={isLoggedIn} /> : "Initializing..." }
+      { 
+        // userObj를 AppRouter에 prop으로 전달함
+        init ? <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} /> : "Initializing..." 
+      }
       <footer>&copy; Twitter { new Date().getFullYear() }</footer>
     </>
   );

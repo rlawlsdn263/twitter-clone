@@ -1,35 +1,11 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs  } from "firebase/firestore"; 
+import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore"; 
 import { dbService } from 'myFirebase';
 
-const Home = () => {
+const Home = ({userObj}) => {
 
   const [tweet, setTweet] = useState('');
-
-  // tweets state에는 DB에 저장된 데이터가 들어온다
   const [tweets, setTweets] = useState([]);
-
-  // 매번 setTweets()가 실행되기 때문에 불필요한 추가가 너무 많이 발생한다.
-  // 매번 하는 것보다 한 번만 하는 게 좋다.
-
-  /* 
-    const getTweets = async () => {
-
-      // getDocs로 DB에 저장된 트윗을 가져옴
-      const dbTweets = await getDocs(collection(dbService, "tweets"));
-      
-      dbTweets.forEach((doc) => {
-        
-        // doc 안의 든 트윗들을 배열에 추가해줌
-        const tweetObject = {
-          // 구조분해할당으로 doc.data()의 모든 걸 풀어서 추가한다
-          ...doc.data(),
-          id: doc.id
-        }
-        setTweets(prev => [tweetObject, ...prev])
-      });
-    } 
-  */
 
   const getTweets = async () => {
     // getDocs로 DB에 저장된 트윗을 가져옴
@@ -48,7 +24,32 @@ const Home = () => {
 
   // useEffect 안에서 getTweets()를 실행해 트윗을 가져옴
   useEffect(() => {
-    getTweets();
+    // getTweets();
+    
+    // 파이어베이스 8버전
+    // dbService.collection("tweets").onSnapshot((snapshot) => {
+    //   const tweetsArray = snapshot.docs.map(doc => (
+    //     {
+    //       id: doc.id,
+    //       ...doc.data()
+    //     }
+    //   ))
+    //   console.log(tweetsArray)
+    // })
+
+    // onSnapshot을 활용해 tweets 안의 데이터 변동을 실시간으로 추적하고 반영한다
+    const unsubscribe = onSnapshot(collection(dbService, "tweets"), (snapshot) => {
+      const tweetsArray = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+      }));
+
+      // tweets state 업데이트
+      setTweets(tweetsArray);
+    });
+
+    // 클린업 함수로 구독취소
+    return () => unsubscribe();
   }, [])
 
   const onSubmit = async (event) => {
@@ -57,8 +58,10 @@ const Home = () => {
     // addDoc을 사용해 컬렉션을 만들고 그 안에 문서를 추가함
     try {
       const docRef = await addDoc(collection(dbService, "tweets"), {
-        tweet,
+        text: tweet,
         createdAt: Date.now(),
+        // userObj 안의 uid는 고유식별자 번호로 사용자룰 식별할 때 사용할 수 있음
+        creatorId: userObj.uid
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -84,7 +87,7 @@ const Home = () => {
         {
           tweets.map(tweet => (
             <div key={tweet.id}>
-              <h4>{tweet.tweet}</h4>
+              <h4>{tweet.text}</h4>
             </div>  
           ))
         }

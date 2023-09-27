@@ -4,14 +4,15 @@ import Home from 'routes/Home';
 import Profile from 'routes/Profile';
 import Navigation from 'components/Navigation';
 
-const AppRouter = ({ isLoggedIn }) => {
+const AppRouter = ({ isLoggedIn, userObj }) => {
   return (
     <Router>
       { 
         isLoggedIn && <Navigation /> 
       }
       <Routes>
-        <Route path="/" element={isLoggedIn ? <Home /> : <Auth />} />
+        {/* userObj를 Home한테 Prop으로 전달함 */}
+        <Route path="/" element={isLoggedIn ? <Home userObj={userObj} /> : <Auth />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>

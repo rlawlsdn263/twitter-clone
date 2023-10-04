@@ -8,6 +8,9 @@ const Home = ({userObj}) => {
   const [tweet, setTweet] = useState('');
   const [tweets, setTweets] = useState([]);
 
+  // 이미지 파일의 URL을 담아둘 state를 만든다
+  const [attachment, setAttachment] = useState(null);
+
   /* const getTweets = async () => {
     // getDocs로 DB에 저장된 트윗을 가져옴
     const dbTweets = await getDocs(collection(dbService, "tweets"));
@@ -69,12 +72,19 @@ const Home = ({userObj}) => {
     // FileReader 인스턴스한테 onloadend 이벤트 리스너를 추가해
     // 파일 로딩이 끝날 경우 finishedEvent 객체가 생성된다
     reader.onloadend = (finishedEvent) => {
-      console.log(finishedEvent);
+      // result에 이미지 파일의 URL이 담음
+      const { currentTarget: { result } } = finishedEvent;
+
+      // attachment state에 result를 업데이트
+      setAttachment(result);
     }
 
-    // readAsDataURL을 사용해 데이터를 얻는다
+    // readAsDataURL을 사용해 데이터를 얻음
     reader.readAsDataURL(theFile);
   }
+
+  // 이미지를 지워버리는 함수
+  const onClearAttachmentClick = () => setAttachment(null);
 
   return (
     <div>
@@ -82,6 +92,17 @@ const Home = ({userObj}) => {
         <input type="text" value={tweet} onChange={onChange} placeholder="What's on your mind?" maxLength={120} />
         <input type="file" accept="image/*" onChange={onFileChange} />
         <input type="submit" value="Tweet" />
+        {
+          // attachment state에 값이 있으면 이미지 태그를 렌더링함
+          attachment && (
+            // img의 src에 attachment state를 넣어 이미지를 렌더링함
+            // button의 onClick에 onClearAttachmentClick 함수를 넣어 클릭하면 image를 지워버림
+            <div>
+              <img alt="Thumnail" src={attachment} width='50px' height='50px' />
+              <button onClick={onClearAttachmentClick}>Clear</button>
+            </div>
+          )
+        }
       </form>
 
       <div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore"; 
 import { dbService } from 'myFirebase';
+import Tweet from 'components/Tweet';
 
 const Home = ({userObj}) => {
 
@@ -86,9 +87,9 @@ const Home = ({userObj}) => {
       <div>
         {
           tweets.map(tweet => (
-            <div key={tweet.id}>
-              <h4>{tweet.text}</h4>
-            </div>  
+            // 기능 추가 및 업데이트를 위해 트윗 컴포넌트화
+            // tweet 객체 안의 creatorId와 userObj의 uid를 비교해 트윗 작성자임을 판단함
+            <Tweet key={tweet.id} tweetObj={tweet} isOwner={tweet.creatorId === userObj.uid}/>
           ))
         }
       </div>

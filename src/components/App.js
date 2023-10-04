@@ -32,7 +32,7 @@ function App() {
         // userObj를 AppRouter에 prop으로 전달함
         init ? <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} /> : "Initializing..." 
       }
-      <footer>&copy; Twitter { new Date().getFullYear() }</footer>
+      {/* <footer>&copy; Twitter { new Date().getFullYear() }</footer> */}
     </>
   );
 }

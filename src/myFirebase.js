@@ -4,6 +4,7 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage"; //스토리지 import 
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -21,3 +22,6 @@ const app = initializeApp(firebaseConfig);
 export const authService = getAuth(app);
 
 export const dbService = getFirestore(app);
+
+// getStorage에 접근
+export const storageService = getStorage(app);

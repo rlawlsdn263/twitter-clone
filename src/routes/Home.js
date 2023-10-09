@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, onSnapshot } from "firebase/firestore"; 
-import { ref, uploadString  } from "firebase/storage";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import { dbService, storageService } from 'myFirebase';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -44,22 +44,34 @@ const Home = ({userObj}) => {
     event.preventDefault();
   
     try {
+      let attachmentURL = "";
       // 사진이 있다면 먼저 올리고, 그 다음에 트윗을 올림(파일 URL을 가진 트윗을 만듦)
-      // const docRef = await addDoc(collection(dbService, "tweets"), {
-      //   text: tweet,
-      //   createdAt: Date.now(),
-      //   creatorId: userObj.uid
-      // });
-      // console.log("Document written with ID: ", docRef.id);
-      
-      // 파이어베이스 스토리지에 uid/uuid로 경로 설정 - 레퍼런스 생성
-      const fileRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
-      const response = await uploadString(fileRef, attachment, "data_url");
-      console.log(response);
+      if(attachment !== "") {
+        // 파이어베이스 스토리지에 uid/uuid로 경로 설정 - 레퍼런스 생성
+        const attachmentRef = ref(storageService, `${userObj.uid}/${uuidv4()}`);
+        const response = await uploadString(attachmentRef, attachment, "data_url");
+  
+        // 이미지 파일 저장 URL을 획득
+        attachmentURL = await getDownloadURL(attachmentRef);
+      }
+
+      // 트윗 객체 생성
+      const tweetObj = {
+        text: tweet,
+        createdAt: Date.now(),
+        creatorId: userObj.uid,
+        attachmentURL: attachmentURL //이미지가 있으면 url이 담기고 아닐 경우 빈 문자열이 담김
+      }
+
+      // 트윗 객체 데이터 저장
+      await addDoc(collection(dbService, "tweets"), tweetObj);
+
+      // 트윗과 이미지 state 초기화
+      setTweet('');
+      setAttachment('');
     } catch (e) {
       console.error("Error adding document: ", e);
     }
-    setTweet('');
   }
 
   const onChange = (event) => {

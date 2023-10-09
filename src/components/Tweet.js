@@ -64,6 +64,7 @@ const Tweet = ({ tweetObj, isOwner }) => {
         (
           <>          
             <h4>{tweetObj.text}</h4>
+            { tweetObj.attachmentURL && <img alt="이미지" src={tweetObj.attachmentURL} width="50px" height="50px" /> }
             {
               // isOwner가 true면 삭제, 수정 버튼을 렌더링함
               isOwner && (

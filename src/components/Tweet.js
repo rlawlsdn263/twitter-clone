@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { doc, deleteDoc, updateDoc  } from "firebase/firestore";
-import { dbService } from 'myFirebase';
+import { dbService, storageService } from 'myFirebase';
+import { ref, deleteObject } from 'firebase/storage';
 
 const Tweet = ({ tweetObj, isOwner }) => {
 
@@ -38,6 +39,12 @@ const Tweet = ({ tweetObj, isOwner }) => {
     if(ok) {
       // deleteDoc()을 사용해 tweets 컬렉션 안의 tweetObj.id를 가진 문서를 삭제함
       await deleteDoc(doc(dbService, "tweets", tweetObj.id));
+
+      const parsedUrl = new URL(tweetObj.attachmentURL); //url 파싱
+      const urlPath = decodeURIComponent(parsedUrl.pathname.split("/o/")[1]); //url 경로 접근
+      const filePath = ref(storageService, urlPath); //파일경로를 가진 ref 생성
+
+      await deleteObject(filePath); //파일삭제
     }
   }
 

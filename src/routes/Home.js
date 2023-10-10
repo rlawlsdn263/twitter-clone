@@ -12,7 +12,7 @@ const Home = ({userObj}) => {
   const [tweets, setTweets] = useState([]);
 
   // 이미지 파일의 URL을 담아둘 state를 만든다
-  const [attachment, setAttachment] = useState(null);
+  const [attachment, setAttachment] = useState("");
 
   /* const getTweets = async () => {
     // getDocs로 DB에 저장된 트윗을 가져옴

@@ -13,7 +13,7 @@ const AppRouter = ({ isLoggedIn, userObj }) => {
       <Routes>
         {/* userObj를 Home한테 Prop으로 전달함 */}
         <Route path="/" element={isLoggedIn ? <Home userObj={userObj} /> : <Auth />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile userObj={userObj} />} />
       </Routes>
     </Router>
   )
